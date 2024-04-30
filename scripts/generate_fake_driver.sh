@@ -2,9 +2,14 @@
 
 declare -A files_metadata=(
     ["backlight_led_brightness"]="rw;0"
-    ["backlight_led_effect"]="rw;0"
-    ["backlight_led_rgb"]="rw;0xFF00FF"
     ["backlight_led_state"]="rw;0"
+    ["backlight_matrix_effect_breath"]="w;"
+    ["backlight_matrix_effect_none"]="w;"
+    ["backlight_matrix_effect_on"]="w;"
+    ["backlight_matrix_effect_reactive"]="w;"
+    ["backlight_matrix_effect_spectrum"]="w;"
+    ["backlight_matrix_effect_static"]="w;"
+    ["backlight_matrix_effect_wave"]="w;"
     ["charge_colour"]="w;"
     ["charge_effect"]="w;"
     ["charge_level"]="r;255"
@@ -36,6 +41,9 @@ declare -A files_metadata=(
     ["fully_charged_matrix_effect_static"]="w;"
     ["fully_charged_matrix_effect_wave"]="w;"
     ["game_led_state"]="rw;0"
+    ["hyperpolling_wireless_dongle_indicator_led_mode"]="w;"
+    ["hyperpolling_wireless_dongle_pair"]="w;"
+    ["hyperpolling_wireless_dongle_unpair"]="w;"
     ["keyswitch_optimization"]="rw;0"
     ["is_mug_present"]="r;0"
     ["kbd_layout"]="r;01"
@@ -51,10 +59,11 @@ declare -A files_metadata=(
     ["left_matrix_effect_wave"]="w;"
     ["logo_led_brightness"]="rw;0"
     ["logo_led_effect"]="rw;0"
-    ["logo_led_rgb"]="rw;0xFF00FF"
     ["logo_led_state"]="rw;0"
+    ["logo_matrix_effect_blinking"]="w;"
     ["logo_matrix_effect_breath"]="w;"
     ["logo_matrix_effect_none"]="w;"
+    ["logo_matrix_effect_on"]="w;"
     ["logo_matrix_effect_reactive"]="w;"
     ["logo_matrix_effect_spectrum"]="w;"
     ["logo_matrix_effect_static"]="w;"
@@ -74,7 +83,7 @@ declare -A files_metadata=(
     ["matrix_effect_starlight"]="w;"
     ["matrix_effect_static"]="w;"
     ["matrix_effect_wave"]="w;"
-    ["matrix_effect_wave"]="w;"
+    ["matrix_effect_wheel"]="w;"
     ["matrix_reactive_trigger"]="w;"
     ["poll_rate"]="rw;500"
     ["profile_led_blue"]="rw;0"
@@ -89,10 +98,11 @@ declare -A files_metadata=(
     ["right_matrix_effect_wave"]="w;"
     ["scroll_led_brightness"]="rw;0"
     ["scroll_led_effect"]="rw;0"
-    ["scroll_led_rgb"]="rw;0xFF00FF"
     ["scroll_led_state"]="rw;0"
+    ["scroll_matrix_effect_blinking"]="w;"
     ["scroll_matrix_effect_breath"]="w;"
     ["scroll_matrix_effect_none"]="w;"
+    ["scroll_matrix_effect_on"]="w;"
     ["scroll_matrix_effect_reactive"]="w;"
     ["scroll_matrix_effect_spectrum"]="w;"
     ["scroll_matrix_effect_static"]="w;"
@@ -103,6 +113,19 @@ declare -A files_metadata=(
     ["tilt_hwheel"]="rw;0"
     ["tilt_repeat"]="rw;0"
     ["tilt_repeat_delay"]="rw;0"
+    ["reset_channels"]="w;1"
+    ["channel1_size"]="rw;8"
+    ["channel2_size"]="rw;8"
+    ["channel3_size"]="rw;8"
+    ["channel4_size"]="rw;8"
+    ["channel5_size"]="rw;8"
+    ["channel6_size"]="rw;8"
+    ["channel1_led_brightness"]="rw;0"
+    ["channel2_led_brightness"]="rw;0"
+    ["channel3_led_brightness"]="rw;0"
+    ["channel4_led_brightness"]="rw;0"
+    ["channel5_led_brightness"]="rw;0"
+    ["channel6_led_brightness"]="rw;0"
     ["version"]="r;1.0.0"
 )
 
@@ -119,7 +142,7 @@ byte_dpi_devices=(
 
 
 get_attr_from_create_device_file() {
-    sed -n 's/[[:space:]]\+CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_\([[:lower:]_]\+\));.*/\1/p'
+    sed -n 's/[[:space:]]\+CREATE_DEVICE_FILE(&hdev->dev, &dev_attr_\([[:lower:][:digit:]_]\+\));.*/\1/p'
 }
 
 driver=$1
@@ -174,6 +197,10 @@ while IFS= read -r device_raw; do
         filename=${filename%.cfg}_2.cfg
     fi
 
+    # There are two "Razer Ornata V3 X"
+    if [ "$device_pid" = "02A2" ]; then
+        filename=${filename%.cfg}_2.cfg
+    fi
 
     if [ -f "$filename" ]; then
         echo "Error: File $filename already exists!"
